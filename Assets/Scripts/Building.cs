@@ -5,7 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public struct Building
 {
-    public int numberOfCells;
+    public int index;
     public GameObject[] pieces;
     public GameObject[] collumns;
     public int begin;
