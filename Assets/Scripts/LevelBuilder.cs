@@ -90,7 +90,7 @@ public class LevelBuilder : MonoBehaviour {
         for (int i = build.begin; i < build.end; i++)
         {
 
-            if(build.begin < currentPos - (polarSteps / 2))
+            if(i < currentPos - (polarSteps / 2) + 1)
             {
                 continue;
             }
@@ -99,7 +99,7 @@ public class LevelBuilder : MonoBehaviour {
                 build.collumns[i].SetActive(true);
             }
             build.pieces[i%polarSteps].SetActive(true);
-            if(i > build.begin && i % polarSteps == build.begin)
+            if(i > build.begin || i > currentPos + (polarSteps/2)-1 )
             {
                 break;
             }
@@ -248,6 +248,31 @@ public class LevelBuilder : MonoBehaviour {
                     DeactivateActive(i, false);
                 }
             }
+            if (activeOutsides.Count < 2)
+            {
+                if (activeBuildings[0].end < currentPos + (polarSteps / 2) - 1)
+                {
+                    if (activeOutsides.Count == 0)
+                    {
+                        CreateNewSlice(currentPos + (polarSteps / 2) - 1, false, false);
+                    }
+                    else if (activeOutsides[0].begin > currentPos)
+                    {
+                        CreateNewSlice(currentPos + (polarSteps / 2) - 1, false, false);
+                    }
+                }
+                if (activeOutsides[0].begin > currentPos - (polarSteps / 2) + 1)
+                {
+                    if (activeOutsides.Count == 0)
+                    {
+                        CreateNewSlice(currentPos - (polarSteps / 2) + 1, true, false);
+                    }
+                    else if (activeOutsides[0].end < currentPos)
+                    {
+                        CreateNewSlice(currentPos - (polarSteps / 2) + 1, true, false);
+                    }
+                }
+            }
         } else
         {
 
@@ -270,28 +295,29 @@ public class LevelBuilder : MonoBehaviour {
                 {
                     if(activeBuildings.Count == 0)
                     {
-                        CreateNewSlice();
+                        CreateNewSlice(currentPos + (polarSteps / 2) - 1, false, true);
                     } else if (activeBuildings[0].begin > currentPos)
                     {
-                        CreateNewSlice();
+                        CreateNewSlice(currentPos + (polarSteps / 2) - 1, false, true);
                     }
                 }
                 if (activeOutsides[0].begin > currentPos - (polarSteps / 2) + 1)
                 {
                     if (activeBuildings.Count == 0)
                     {
-                        CreateNewSlice();
+                        CreateNewSlice(currentPos - (polarSteps / 2) + 1, true, true);
                     }
                     else if (activeBuildings[0].end < currentPos)
                     {
-                        CreateNewSlice();
+                        CreateNewSlice(currentPos - (polarSteps / 2) + 1, true, true);
                     }
                 }
             }
         }
     }
+
     
-    CreateNewSlice(int index, int start, bool clockwise, bool building)
+    void CreateNewSlice(int start, bool clockwise, bool building)
     {
         if (building)
         {
@@ -316,10 +342,47 @@ public class LevelBuilder : MonoBehaviour {
         }
 
     }
+
+    void UpdateVisible()
+    {
+  
+        foreach(Building build in activeBuildings)
+        {
+            for (int i = build.begin; i < build.end; i++)
+            {
+
+                if (i < currentPos - (polarSteps / 2) + 1)
+                {
+                    build.collumns[i % polarSteps].SetActive(false);
+                    build.pieces[i % polarSteps].SetActive(false);
+                    continue;
+                }
+                if (i == build.begin % polarSteps)
+                {
+                    build.collumns[i%polarSteps].SetActive(true);
+                }
+                if (i > currentPos + (polarSteps / 2) - 1)
+                {
+                    build.collumns[i % polarSteps].SetActive(false);
+                    build.pieces[i % polarSteps].SetActive(false);
+                    continue;
+                }
+                build.pieces[i % polarSteps].SetActive(true);
+                if (i == build.end - 1)
+                {
+                    build.collumns[(i + 1) % polarSteps].SetActive(true);
+                }
+            }
+
+        }
+
+
+    }
     // Update is called once per frame
     void Update () {
         if (UpdatePos()){
             CheckVisibleActive();
+            UpdateVisible();
         }
     }
 }
